@@ -37,16 +37,69 @@
         max-width: 600px;
     }
 
-    .profile-img {
-        display: block;
-        margin: 20px auto;
-        width: 180px;
+    .message-container {
+        position: absolute;
+        top: 65%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+    }
+
+    /* Angelic Animation */
+    .angel-image {
+        position: relative;
+        display: inline-block;
+        animation: angelSequence 5s ease-in-out forwards;
+        filter: blur(8px) brightness(1.2);
+        opacity: 0;
+        width: 200px;
         height: auto;
         border-radius: 15px;
-        z-index: 10;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        margin: 20px 0;
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
+    }
+
+    /* Sparkle Layer */
+    .angel-image::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-image: radial-gradient(rgba(255,255,255,0.8) 2px, transparent 3px);
+        background-size: 20px 20px;
         opacity: 0;
-        transform: scale(0.8);
+        animation: sparkle 5s ease-in-out forwards;
+        pointer-events: none;
+        border-radius: 15px;
+    }
+
+    @keyframes angelSequence {
+        0% {
+            opacity: 0;
+            transform: scale(1) translateY(0);
+            filter: blur(8px) brightness(1.3);
+        }
+        20% {
+            opacity: 1;
+            filter: blur(0px) brightness(1.1);
+        }
+        60% {
+            transform: scale(1.05) translateY(-5px);
+        }
+        80% {
+            transform: scale(1.08) translateY(-3px);
+        }
+        100% {
+            opacity: 1;
+            filter: blur(0px) brightness(1);
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    @keyframes sparkle {
+        0%, 100% { opacity: 0; }
+        20%, 80% { opacity: 0.4; background-position: 0 0; }
+        50% { opacity: 0.6; background-position: 10px 10px; }
     }
 
     @keyframes fadeIn {
@@ -57,11 +110,6 @@
     @keyframes fadeOut {
         from { opacity: 1; }
         to { opacity: 0; }
-    }
-    
-    @keyframes scaleIn {
-        from { transform: scale(0.8); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
     }
     
     @keyframes typing {
@@ -80,7 +128,7 @@
         border-right: 3px solid #c2185b;
         animation: typing 2s steps(40, end), blink-caret .75s step-end infinite;
     }
-    
+
     /* Balloon styling - stationary */
     .balloon {
         position: fixed;
@@ -97,7 +145,7 @@
         .center-message {
             font-size: 1.5em;
         }
-        .profile-img {
+        .angel-image {
             width: 150px;
         }
     }
@@ -111,10 +159,12 @@
 <!-- Messages -->
 <div class="center-message" id="message1"></div>
 <div class="center-message" id="message2"></div>
-<div class="center-message" id="message3"></div>
 
-<!-- Profile Image -->
-<img class="profile-img" id="profileImg" src="vichi.png" alt="Birthday Girl">
+<!-- Image and Final Message Container -->
+<div id="imageContainer" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; opacity: 0;">
+    <img class="angel-image" id="profileImg" src="vichi.png" alt="Birthday Girl">
+    <div class="message-container" id="message3"></div>
+</div>
 
 <!-- Audio -->
 <audio id="bg-music" loop>
@@ -209,7 +259,7 @@
 
     // Start all animations synchronized with music
     function startAnimations() {
-        // First message appears immediately (1.1s after music starts)
+        // First message appears 1.1s after music starts
         setTimeout(() => {
             const msg1 = document.getElementById('message1');
             typeWriter(msg1, "One last time ✨", 100, () => {
@@ -226,15 +276,16 @@
                             setTimeout(() => {
                                 msg2.style.animation = "fadeOut 1s forwards";
                                 
-                                // Image appears at exactly 8 seconds with 5s animation
-                                const img = document.getElementById('profileImg');
-                                img.style.animation = "scaleIn 5s forwards";
+                                // Image container appears at exactly 8 seconds
+                                const container = document.getElementById('imageContainer');
+                                container.style.opacity = "1";
+                                container.style.animation = "fadeIn 1s forwards";
                                 
-                                // Third message appears after image animation starts
+                                // Third message appears after image animation completes (5 seconds)
                                 setTimeout(() => {
                                     const msg3 = document.getElementById('message3');
                                     typeWriter(msg3, "My world is better because you're in it 💖", 30);
-                                }, 1000);
+                                }, 5000);
                             }, remainingTime);
                         });
                     }, 500);
@@ -249,6 +300,5 @@
         handleAudio();
     });
 </script>
-
 </body>
 </html>
