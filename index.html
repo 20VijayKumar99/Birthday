@@ -63,6 +63,7 @@
         background-repeat: no-repeat;
         animation: floatUp 10s linear infinite;
         z-index: 1;
+        pointer-events: none;
     }
 
     @keyframes floatUp {
@@ -94,14 +95,31 @@
 <!-- Music (with mobile-friendly tap) -->
 <audio id="bg-music" loop>
     <source src="birthday.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
 </audio>
 
 <script>
     // Function to handle autoplay restrictions
-    document.body.addEventListener('click', function playMusicOnce() {
-        document.getElementById('bg-music').play();
-        document.body.removeEventListener('click', playMusicOnce);
-    });
+    function handleAudioPlay() {
+        const audio = document.getElementById('bg-music');
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                // Auto-play was prevented, show play button or require user interaction
+                document.body.addEventListener('click', function playMusicOnce() {
+                    audio.play();
+                    document.body.removeEventListener('click', playMusicOnce);
+                }, { once: true });
+            });
+        }
+    }
+
+    // Try to play audio when page loads
+    document.addEventListener('DOMContentLoaded', handleAudioPlay);
+    
+    // Also try when window loads (for better compatibility)
+    window.addEventListener('load', handleAudioPlay);
 
     // Show message with fade
     function showMessage(id, duration, nextCallback) {
@@ -129,22 +147,23 @@
         });
     }, 1000);
 
-    // Floating balloons
+    // Floating balloons with better image sources
     function createBalloon(imgUrl, delay) {
         const balloon = document.createElement("div");
         balloon.classList.add("balloon");
-        balloon.style.backgroundImage = `url(${imgUrl})`;
+        balloon.style.backgroundImage = `url('${imgUrl}')`;
         balloon.style.left = Math.random() * window.innerWidth + "px";
         balloon.style.animationDelay = delay + "s";
         document.getElementById("balloons").appendChild(balloon);
     }
 
+    // Using better balloon image sources
     const balloonImages = [
-        "https://i.ibb.co/FKXbjTq/balloon-red.png",
-        "https://i.ibb.co/ZJf3yW6/balloon-blue.png",
-        "https://i.ibb.co/6DPM8QZ/balloon-yellow.png",
-        "https://i.ibb.co/wN5czrV/balloon-green.png",
-        "https://i.ibb.co/4pFMc09/balloon-pink.png"
+        "https://cdn.pixabay.com/photo/2014/04/03/00/41/balloon-309539_960_720.png",
+        "https://cdn.pixabay.com/photo/2014/04/03/00/41/balloon-309535_960_720.png",
+        "https://cdn.pixabay.com/photo/2014/04/03/00/41/balloon-309534_960_720.png",
+        "https://cdn.pixabay.com/photo/2014/04/03/00/41/balloon-309532_960_720.png",
+        "https://cdn.pixabay.com/photo/2014/04/03/00/41/balloon-309531_960_720.png"
     ];
 
     for (let i = 0; i < 15; i++) {
