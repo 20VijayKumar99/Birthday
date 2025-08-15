@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday Vichithra</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: url('birth.png') no-repeat center center/cover;
+        font-family: 'Segoe UI', sans-serif;
+        overflow: hidden;
+        text-align: center;
+        color: #d6336c; /* Text color matching background theme */
+    }
+
+    .center-message {
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.8em;
+        font-weight: bold;
+        opacity: 0;
+        animation-fill-mode: forwards;
+        padding: 0 10px;
+    }
+
+    img {
+        display: block;
+        margin: 15px auto 0;
+        width: 180px;
+        height: auto;
+        border-radius: 15px;
+        border: 3px solid white;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    }
+
+    /* Fade in/out animations */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    /* Mobile responsive font size */
+    @media (max-width: 480px) {
+        .center-message {
+            font-size: 1.5em;
+        }
+        img {
+            width: 150px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<!-- Messages -->
+<div class="center-message" id="message1">One last time ✨</div>
+<div class="center-message" id="message2">Wish you Happy Birthday my dearest friend ❤️<br><img src="vichi.png" alt="Birthday Girl"></div>
+<div class="center-message" id="message3">My world is a better place because you're in it.<br>Thank you for making every moment feel like a fairy tale. 💖</div>
+
+<!-- Background Music -->
+<audio autoplay loop>
+    <source src="birthday.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    function showMessage(id, duration, nextCallback) {
+        const el = document.getElementById(id);
+        el.style.animation = "fadeIn 1s forwards";
+        setTimeout(() => {
+            el.style.animation = "fadeOut 1s forwards";
+            setTimeout(() => {
+                el.style.display = "none";
+                if (nextCallback) nextCallback();
+            }, 1000); // fade out duration
+        }, duration);
+    }
+
+    // Sequence:
+    // 1. Wait 1 sec, show message1 for 2 sec
+    setTimeout(() => {
+        showMessage("message1", 2000, () => {
+            // 2. 0.5 sec gap, then show message2 for 5 sec
+            setTimeout(() => {
+                showMessage("message2", 5000, () => {
+                    // 3. Show message3 for 5 sec
+                    setTimeout(() => {
+                        showMessage("message3", 5000);
+                    }, 0);
+                });
+            }, 500);
+        });
+    }, 1000);
+</script>
+
+</body>
+</html>
