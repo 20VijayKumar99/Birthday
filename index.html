@@ -234,7 +234,7 @@
 </div>
 
 <!-- Audio -->
-<audio id="bg-music">
+<audio id="bg-music" loop>
     <source src="birthday.mp3" type="audio/mpeg">
 </audio>
 
@@ -266,6 +266,9 @@
         elements.playAgainBtn.addEventListener('click', restartCelebration);
         elements.specialMessageBtn.addEventListener('click', () => elements.passwordModal.style.display = 'flex');
         elements.submitPassword.addEventListener('click', checkPassword);
+        
+        // Set audio to loop
+        elements.audio.loop = true;
     }
 
     // Event Handlers
@@ -290,8 +293,9 @@
         elements.passwordModal.style.display = 'none';
         elements.passwordInput.value = '';
         
-        // Reset audio
+        // Reset and restart audio
         elements.audio.currentTime = 0;
+        elements.audio.play();
         
         // Show click prompt again
         elements.clickPrompt.style.display = 'block';
@@ -383,7 +387,6 @@
                                             // Show buttons at 20 seconds
                                             setTimeout(() => {
                                                 elements.buttons.style.display = 'flex';
-                                                elements.audio.pause();
                                             }, 2000);
                                         });
                                     }, 500);
