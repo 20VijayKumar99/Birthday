@@ -37,69 +37,59 @@
         max-width: 600px;
     }
 
-    .message-container {
+    .final-message {
         position: absolute;
         top: 65%;
         left: 50%;
         transform: translateX(-50%);
-        width: 100%;
+        width: 80%;
+        max-width: 600px;
+        font-size: 1.5em;
+        font-weight: bold;
+        color: white;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        opacity: 0;
+        z-index: 20;
     }
 
-    /* Angelic Animation */
-    .angel-image {
-        position: relative;
-        display: inline-block;
-        animation: angelSequence 5s ease-in-out forwards;
-        filter: blur(8px) brightness(1.2);
-        opacity: 0;
-        width: 200px;
+    /* Cinematic Zoom Effect */
+    .cinematic-image {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 250px;
         height: auto;
         border-radius: 15px;
-        margin: 20px 0;
         box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
-    }
-
-    /* Sparkle Layer */
-    .angel-image::after {
-        content: "";
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-image: radial-gradient(rgba(255,255,255,0.8) 2px, transparent 3px);
-        background-size: 20px 20px;
+        animation: cinematicZoom 7s ease-in-out forwards;
         opacity: 0;
-        animation: sparkle 5s ease-in-out forwards;
-        pointer-events: none;
-        border-radius: 15px;
+        z-index: 15;
     }
 
-    @keyframes angelSequence {
+    @keyframes cinematicZoom {
         0% {
             opacity: 0;
-            transform: scale(1) translateY(0);
+            transform: translate(-50%, -50%) scale(0.8);
             filter: blur(8px) brightness(1.3);
         }
-        20% {
+        14% { /* ~1sec */
+            opacity: 0.8;
+            filter: blur(6px) brightness(1.2);
+        }
+        43% { /* ~3sec */
             opacity: 1;
-            filter: blur(0px) brightness(1.1);
+            transform: translate(-50%, -50%) scale(1);
+            filter: blur(0px) brightness(1);
         }
-        60% {
-            transform: scale(1.05) translateY(-5px);
-        }
-        80% {
-            transform: scale(1.08) translateY(-3px);
+        71% { /* ~5sec */
+            transform: translate(-50%, -50%) scale(1.02);
         }
         100% {
             opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
             filter: blur(0px) brightness(1);
-            transform: scale(1) translateY(0);
         }
-    }
-
-    @keyframes sparkle {
-        0%, 100% { opacity: 0; }
-        20%, 80% { opacity: 0.4; background-position: 0 0; }
-        50% { opacity: 0.6; background-position: 10px 10px; }
     }
 
     @keyframes fadeIn {
@@ -145,8 +135,11 @@
         .center-message {
             font-size: 1.5em;
         }
-        .angel-image {
-            width: 150px;
+        .cinematic-image {
+            width: 180px;
+        }
+        .final-message {
+            font-size: 1.3em;
         }
     }
 </style>
@@ -160,11 +153,11 @@
 <div class="center-message" id="message1"></div>
 <div class="center-message" id="message2"></div>
 
-<!-- Image and Final Message Container -->
-<div id="imageContainer" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; opacity: 0;">
-    <img class="angel-image" id="profileImg" src="vichi.png" alt="Birthday Girl">
-    <div class="message-container" id="message3"></div>
-</div>
+<!-- Birthday Person Image -->
+<img class="cinematic-image" id="profileImg" src="vichi.png" alt="Birthday Girl">
+
+<!-- Final Message -->
+<div class="final-message" id="message3"></div>
 
 <!-- Audio -->
 <audio id="bg-music" loop>
@@ -263,33 +256,32 @@
         setTimeout(() => {
             const msg1 = document.getElementById('message1');
             typeWriter(msg1, "One last time ✨", 100, () => {
-                // First message stays for 3 seconds total (disappears at ~4.1s)
+                // First message stays until 3.5 seconds
                 setTimeout(() => {
                     msg1.style.animation = "fadeOut 1s forwards";
                     
-                    // Second message appears immediately after first disappears
+                    // Second message appears at 3.5 seconds
                     setTimeout(() => {
                         const msg2 = document.getElementById('message2');
                         typeWriter(msg2, "Wish you Happy Birthday my dearest friend ❤️", 50, () => {
-                            // Second message stays until 8 seconds
-                            const remainingTime = Math.max(0, 8000 - (Date.now() - musicStartTime));
+                            // Second message stays until 7 seconds
                             setTimeout(() => {
                                 msg2.style.animation = "fadeOut 1s forwards";
                                 
-                                // Image container appears at exactly 8 seconds
-                                const container = document.getElementById('imageContainer');
-                                container.style.opacity = "1";
-                                container.style.animation = "fadeIn 1s forwards";
+                                // Image appears at 7 seconds with cinematic effect
+                                const img = document.getElementById('profileImg');
+                                img.style.opacity = "1";
                                 
-                                // Third message appears after image animation completes (5 seconds)
+                                // Third message appears at 13 seconds (6 seconds after image)
                                 setTimeout(() => {
                                     const msg3 = document.getElementById('message3');
-                                    typeWriter(msg3, "My world is better because you're in it 💖", 30);
-                                }, 5000);
-                            }, remainingTime);
+                                    msg3.style.animation = "fadeIn 2s forwards";
+                                    msg3.textContent = "My world is better because you're in it 💖";
+                                }, 6000);
+                            }, 3500); // Total 7 seconds for first two messages
                         });
                     }, 500);
-                }, 3000);
+                }, 2000);
             });
         }, 1100); // Start first message 1.1s after music starts
     }
