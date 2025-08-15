@@ -30,9 +30,12 @@
         color: #c2185b;
         z-index: 10;
         text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-        width: 80%;
+        width: 90%;
         max-width: 600px;
         opacity: 0;
+        word-wrap: break-word;
+        white-space: normal;
+        line-height: 1.4;
     }
 
     #clickPrompt {
@@ -45,7 +48,7 @@
     }
 
     #message2 {
-        top: 20%;
+        top: 15%;
     }
 
     .birthday-image {
@@ -176,12 +179,26 @@
     @media (max-width: 480px) {
         .message {
             font-size: 1.4em;
+            width: 95%;
+            padding: 0 5px;
+        }
+        #message2 {
+            top: 10%;
         }
         .birthday-image {
             width: 180px;
         }
         .btn {
             padding: 10px 20px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .message {
+            font-size: 1.2em;
+        }
+        #message2 {
+            top: 5%;
         }
     }
 </style>
@@ -247,7 +264,7 @@
     function init() {
         document.addEventListener('click', handleFirstClick, { once: true });
         elements.playAgainBtn.addEventListener('click', restartCelebration);
-        elements.specialMessageBtn.addEventListener('click', showSpecialMessage);
+        elements.specialMessageBtn.addEventListener('click', () => elements.passwordModal.style.display = 'flex');
         elements.submitPassword.addEventListener('click', checkPassword);
     }
 
@@ -305,21 +322,12 @@
         
         // Show special message with typing effect
         typeWriter(elements.specialMessage, "This is your special day! ❤️", 40, () => {
-            // You can add more text here or additional effects
+            // After message is fully typed, show the play again button
             setTimeout(() => {
-                // Add a "Play Again" button after the message
-                const playAgainBtn = document.createElement('button');
-                playAgainBtn.className = 'btn';
-                playAgainBtn.textContent = 'Play Again';
-                playAgainBtn.style.marginTop = '20px';
-                playAgainBtn.style.marginLeft = 'auto';
-                playAgainBtn.style.marginRight = 'auto';
-                playAgainBtn.style.display = 'block';
-                playAgainBtn.addEventListener('click', restartCelebration);
-                
-                // Append the button below the message
-                elements.specialMessage.appendChild(document.createElement('br'));
-                elements.specialMessage.appendChild(playAgainBtn);
+                elements.buttons.style.display = 'flex';
+                elements.buttons.style.flexDirection = 'column';
+                elements.buttons.style.alignItems = 'center';
+                elements.playAgainBtn.style.display = 'block';
             }, 1000);
         });
     }
@@ -341,6 +349,7 @@
                 setTimeout(type, speed);
             } else {
                 element.style.borderRight = 'none';
+                element.style.whiteSpace = 'normal';
                 if (callback) setTimeout(callback, 500);
             }
         }
