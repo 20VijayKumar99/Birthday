@@ -33,9 +33,11 @@
         color: #c2185b;
         z-index: 10;
         text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        width: 80%;
+        max-width: 600px;
     }
 
-    img {
+    .profile-img {
         display: block;
         margin: 15px auto 0;
         width: 180px;
@@ -43,18 +45,56 @@
         border-radius: 15px;
         z-index: 10;
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        opacity: 0;
+        transform: translateY(20px);
     }
 
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
     }
+    
     @keyframes fadeOut {
         from { opacity: 1; }
         to { opacity: 0; }
     }
+    
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+    }
+    
+    @keyframes blink-caret {
+        from, to { border-color: transparent }
+        50% { border-color: #c2185b }
+    }
+    
+    .typing-animation {
+        overflow: hidden;
+        white-space: nowrap;
+        border-right: 3px solid #c2185b;
+        animation: typing 3s steps(40, end), blink-caret .75s step-end infinite;
+    }
+    
+    /* Puzzle animation for image */
+    @keyframes puzzle {
+        0% { clip-path: polygon(0 0, 0 0, 0 0, 0 0); }
+        25% { clip-path: polygon(0 0, 50% 0, 50% 50%, 0 50%); }
+        50% { clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%); }
+        75% { clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 100%); }
+        100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+    }
+    
+    .puzzle-animation {
+        animation: puzzle 2s ease-out forwards;
+    }
 
-    /* Improved balloon styling */
+    /* Balloon styling */
     .balloon {
         position: absolute;
         bottom: -200px;
@@ -78,28 +118,11 @@
         }
     }
 
-    /* Play button for audio */
-    .play-button {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: #c2185b;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        font-size: 24px;
-        cursor: pointer;
-        z-index: 100;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-
     @media (max-width: 480px) {
         .center-message {
             font-size: 1.5em;
         }
-        img {
+        .profile-img {
             width: 150px;
         }
     }
@@ -111,20 +134,20 @@
 <div id="balloons"></div>
 
 <!-- Messages -->
-<div class="center-message" id="message1">One last time ✨</div>
-<div class="center-message" id="message2">Wish you Happy Birthday my dearest friend ❤️<br><img src="vichi.png" alt="Birthday Girl"></div>
-<div class="center-message" id="message3">My world is a better place because you're in it.<br>Thank you for making every moment feel like a fairy tale. 💖</div>
+<div class="center-message" id="message1"></div>
+<div class="center-message" id="message2"></div>
+<div class="center-message" id="message3"></div>
+
+<!-- Profile Image -->
+<img class="profile-img" id="profileImg" src="vichi.png" alt="Birthday Girl">
 
 <!-- Audio -->
 <audio id="bg-music" loop>
     <source src="birthday.mp3" type="audio/mpeg">
 </audio>
 
-<!-- Play button -->
-<button class="play-button" id="playButton">▶</button>
-
 <script>
-    // Balloon creation with better images
+    // Balloon creation
     function createBalloons() {
         const colors = ['red', 'blue', 'yellow', 'green', 'pink', 'purple'];
         const balloonContainer = document.getElementById('balloons');
@@ -133,14 +156,12 @@
             const balloon = document.createElement('div');
             balloon.className = 'balloon';
             
-            // Random balloon properties
             const color = colors[Math.floor(Math.random() * colors.length)];
             const size = Math.random() * 30 + 40;
             const leftPos = Math.random() * 100;
             const delay = Math.random() * 15;
             const duration = Math.random() * 10 + 10;
             
-            // Set balloon style
             balloon.style.backgroundImage = `url('https://raw.githubusercontent.com/pqina/plainballoon/master/assets/${color}-balloon.png')`;
             balloon.style.width = `${size}px`;
             balloon.style.height = `${size * 1.3}px`;
@@ -152,62 +173,102 @@
         }
     }
 
-    // Audio control
-    const audio = document.getElementById('bg-music');
-    const playButton = document.getElementById('playButton');
-    
-    function toggleAudio() {
-        if (audio.paused) {
-            audio.play();
-            playButton.textContent = '❚❚';
-        } else {
-            audio.pause();
-            playButton.textContent = '▶';
-        }
-    }
-    
-    // Try to autoplay (may not work on all browsers)
-    document.addEventListener('DOMContentLoaded', () => {
-        createBalloons();
+    // Audio control with autoplay
+    function handleAudio() {
+        const audio = document.getElementById('bg-music');
+        audio.volume = 0.7; // Set volume to 70%
         
-        // Try to autoplay with promise
+        // Try to autoplay
         const playPromise = audio.play();
         
         if (playPromise !== undefined) {
-            playPromise.catch(() => {
-                // Autoplay prevented, show button
-                playButton.style.display = 'block';
+            playPromise.catch(error => {
+                // Autoplay was prevented - show message
+                setTimeout(() => {
+                    document.getElementById('message1').textContent = "Click anywhere to play music";
+                    document.getElementById('message1').style.animation = "fadeIn 1s forwards";
+                    
+                    // Play on click
+                    document.body.addEventListener('click', function playOnClick() {
+                        audio.play();
+                        document.body.removeEventListener('click', playOnClick);
+                        document.getElementById('message1').style.animation = "fadeOut 0.5s forwards";
+                        startAnimations();
+                    }, { once: true });
+                }, 1000);
             });
         }
         
-        // Set up button
-        playButton.addEventListener('click', toggleAudio);
-    });
-
-    // Message sequence
-    function showMessage(id, duration, nextCallback) {
-        const el = document.getElementById(id);
-        el.style.animation = "fadeIn 1s forwards";
-        setTimeout(() => {
-            el.style.animation = "fadeOut 1s forwards";
-            setTimeout(() => {
-                el.style.display = "none";
-                if (nextCallback) nextCallback();
-            }, 1000);
-        }, duration);
+        return playPromise;
     }
 
-    setTimeout(() => {
-        showMessage("message1", 2000, () => {
-            setTimeout(() => {
-                showMessage("message2", 5000, () => {
+    // Typing animation for text
+    function typeWriter(element, text, speed, callback) {
+        let i = 0;
+        element.innerHTML = "";
+        element.style.animation = "none";
+        element.style.borderRight = "3px solid #c2185b";
+        element.style.opacity = "1";
+        
+        function typing() {
+            if (i < text.length) {
+                element.innerHTML += text.charAt(i);
+                i++;
+                setTimeout(typing, speed);
+            } else {
+                element.style.borderRight = "none";
+                if (callback) callback();
+            }
+        }
+        
+        typing();
+    }
+
+    // Start all animations
+    function startAnimations() {
+        // First message after 1.1 seconds (as requested)
+        setTimeout(() => {
+            const msg1 = document.getElementById('message1');
+            typeWriter(msg1, "One last time ✨", 100, () => {
+                setTimeout(() => {
+                    msg1.style.animation = "fadeOut 1s forwards";
+                    
+                    // Second message
                     setTimeout(() => {
-                        showMessage("message3", 5000);
+                        const msg2 = document.getElementById('message2');
+                        typeWriter(msg2, "Wish you Happy Birthday my dearest friend ❤️", 50, () => {
+                            // Show image at 8 seconds (as requested)
+                            setTimeout(() => {
+                                const img = document.getElementById('profileImg');
+                                img.style.animation = "puzzle-animation 2s forwards, slideUp 1.5s forwards";
+                                img.style.opacity = "1";
+                                
+                                // Third message
+                                setTimeout(() => {
+                                    const msg3 = document.getElementById('message3');
+                                    typeWriter(msg3, "My world is a better place because you're in it. Thank you for making every moment feel like a fairy tale. 💖", 30);
+                                }, 2000);
+                            }, 8000 - Date.now() + startTime); // Ensure image appears at 8 seconds
+                        });
                     }, 500);
-                });
-            }, 500);
+                }, 2000);
+            });
+        }, 1100);
+    }
+
+    // Initialize
+    let startTime;
+    document.addEventListener('DOMContentLoaded', () => {
+        createBalloons();
+        startTime = Date.now();
+        
+        // Handle audio and start animations when music plays
+        handleAudio().then(() => {
+            startAnimations();
+        }).catch(() => {
+            // Handled in the error case above
         });
-    }, 1000);
+    });
 </script>
 
 </body>
