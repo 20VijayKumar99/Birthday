@@ -51,6 +51,26 @@
         text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
     }
 
+    #clickPrompt {
+        position: fixed;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #c2185b;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        width: 80%;
+        max-width: 600px;
+        z-index: 1000;
+        animation: blink 2s infinite;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; }
+    }
+
     .birthday-image {
         position: absolute;
         top: 50%;
@@ -137,20 +157,6 @@
         max-width: 400px;
     }
 
-    .password-input {
-        width: 100%;
-        padding: 10px;
-        margin: 10px 0;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-
-    .hint {
-        font-size: 0.8em;
-        color: #666;
-        margin-bottom: 15px;
-    }
-
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
@@ -179,7 +185,7 @@
     }
 
     @media (max-width: 480px) {
-        .message {
+        .message, #clickPrompt {
             font-size: 1.5em;
         }
         .birthday-image {
@@ -195,12 +201,7 @@
 <body>
 
 <!-- Initial Click Prompt -->
-<div id="clickPrompt" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.7); z-index: 1000;">
-    <div style="background: white; padding: 30px; border-radius: 10px; text-align: center;">
-        <h2>Click anywhere to start</h2>
-        <p>The birthday celebration will begin</p>
-    </div>
-</div>
+<div id="clickPrompt">Click anywhere to begin the celebration</div>
 
 <!-- Messages -->
 <div class="message" id="message1"></div>
@@ -220,8 +221,8 @@
 <div class="modal" id="passwordModal">
     <div class="modal-content">
         <h2>Enter Password</h2>
-        <p class="hint">Hint: My birthday in MMYYYYDD format</p>
-        <input type="text" class="password-input" id="passwordInput" placeholder="Enter password">
+        <p style="font-size: 0.8em; color: #666; margin-bottom: 15px;">Hint: My birthday in MMYYYYDD format</p>
+        <input type="text" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px;" id="passwordInput" placeholder="Enter password">
         <button class="btn" id="submitPassword">Proceed</button>
     </div>
 </div>
@@ -256,15 +257,15 @@
     const specialPlayAgainBtn = document.getElementById('specialPlayAgainBtn');
     const audio = document.getElementById('bg-music');
 
+    // Password
+    const correctPassword = "08200023";
+
     // Event Listeners
-    document.body.addEventListener('click', startCelebration, { once: true });
+    document.addEventListener('click', startCelebration, { once: true });
     playAgainBtn.addEventListener('click', restartCelebration);
     specialMessageBtn.addEventListener('click', showPasswordModal);
     submitPassword.addEventListener('click', checkPassword);
     specialPlayAgainBtn.addEventListener('click', restartCelebration);
-
-    // Password
-    const correctPassword = "08200023";
 
     function startCelebration() {
         clickPrompt.style.display = 'none';
@@ -277,10 +278,13 @@
         // Reset all elements
         message1.style.opacity = '0';
         message1.style.animation = 'none';
+        message1.textContent = '';
         message2.style.opacity = '0';
         message2.style.animation = 'none';
+        message2.textContent = '';
         message3.style.opacity = '0';
         message3.style.animation = 'none';
+        message3.textContent = '';
         birthdayImage.style.opacity = '0';
         birthdayImage.style.animation = 'none';
         buttons.style.display = 'none';
@@ -290,8 +294,11 @@
         // Reset audio
         audio.currentTime = 0;
         
-        // Start again
-        startCelebration();
+        // Show click prompt again
+        clickPrompt.style.display = 'block';
+        
+        // Set up new click listener
+        document.addEventListener('click', startCelebration, { once: true });
     }
 
     function showPasswordModal() {
@@ -308,8 +315,6 @@
     }
 
     function startAnimations() {
-        const startTime = Date.now();
-        
         // First message (1-2 seconds)
         setTimeout(() => {
             message1.textContent = "One last time ✨";
@@ -344,11 +349,11 @@
                                     audio.pause();
                                 }, 6000);
                             }, 500);
-                        }, 7500); // 14s total (6.5s + 7.5s)
-                    }, 3500); // 6.5s total (1s + 0.5s + 3s + 2s)
-                }, 500); // 0.5s gap after first message
-            }, 1000); // First message shows for 1s
-        }, 1000); // Start first message at 1s
+                        }, 7500);
+                    }, 3500);
+                }, 500);
+            }, 1000);
+        }, 1000);
     }
 </script>
 </body>
