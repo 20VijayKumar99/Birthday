@@ -129,6 +129,32 @@
         margin: 10px 0;
     }
 
+    .feedback-form {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        max-width: 500px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        display: none;
+        z-index: 30;
+    }
+
+    .feedback-form textarea {
+        width: 100%;
+        height: 120px;
+        padding: 12px;
+        margin: 15px 0;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1em;
+        resize: none;
+    }
+
     @keyframes blink {
         0%, 100% { opacity: 0.7; }
         50% { opacity: 1; }
@@ -191,6 +217,10 @@
         .btn {
             padding: 10px 20px;
         }
+        .feedback-form {
+            width: 90%;
+            padding: 15px;
+        }
     }
 
     @media (max-width: 360px) {
@@ -233,6 +263,13 @@
     </div>
 </div>
 
+<!-- Feedback Form -->
+<div class="feedback-form" id="feedbackForm">
+    <h3 style="color: #c2185b;">Anything you want to say to me?</h3>
+    <textarea id="userMessage" placeholder="Type your message here..."></textarea>
+    <button class="btn" id="submitFeedback" style="width: 100%;">Play Again</button>
+</div>
+
 <!-- Audio -->
 <audio id="bg-music" loop>
     <source src="birthday.mp3" type="audio/mpeg">
@@ -253,6 +290,9 @@
         passwordModal: document.getElementById('passwordModal'),
         passwordInput: document.getElementById('passwordInput'),
         submitPassword: document.getElementById('submitPassword'),
+        feedbackForm: document.getElementById('feedbackForm'),
+        userMessage: document.getElementById('userMessage'),
+        submitFeedback: document.getElementById('submitFeedback'),
         audio: document.getElementById('bg-music')
     };
 
@@ -266,6 +306,7 @@
         elements.playAgainBtn.addEventListener('click', restartCelebration);
         elements.specialMessageBtn.addEventListener('click', () => elements.passwordModal.style.display = 'flex');
         elements.submitPassword.addEventListener('click', checkPassword);
+        elements.submitFeedback.addEventListener('click', restartCelebration);
         
         // Set audio to loop
         elements.audio.loop = true;
@@ -291,7 +332,9 @@
         elements.birthdayImage.style.animation = '';
         elements.buttons.style.display = 'none';
         elements.passwordModal.style.display = 'none';
+        elements.feedbackForm.style.display = 'none';
         elements.passwordInput.value = '';
+        elements.userMessage.value = '';
         
         // Reset and restart audio
         elements.audio.currentTime = 0;
@@ -324,16 +367,15 @@
         elements.birthdayImage.style.opacity = '0';
         elements.buttons.style.display = 'none';
         
-        // Show special message with typing effect
-        typeWriter(elements.specialMessage, "This is your special day! ❤️", 40, () => {
-            // After message is fully typed, show the play again button
-            setTimeout(() => {
-                elements.buttons.style.display = 'flex';
-                elements.buttons.style.flexDirection = 'column';
-                elements.buttons.style.alignItems = 'center';
-                elements.playAgainBtn.style.display = 'block';
-            }, 1000);
-        });
+        // Show special message (no typing effect)
+        elements.specialMessage.textContent = "This is your special day! ❤️";
+        elements.specialMessage.style.opacity = '1';
+        
+        // Hide special message after 5 seconds and show feedback form
+        setTimeout(() => {
+            elements.specialMessage.style.opacity = '0';
+            elements.feedbackForm.style.display = 'block';
+        }, 5000);
     }
 
     // Animation Functions
