@@ -43,7 +43,7 @@
         animation: blink 1.5s infinite;
     }
 
-    #message1, #message3, #specialMessage {
+    #message1, #message3, #specialMessage, #passwordWindow {
         top: 45%;
     }
 
@@ -92,26 +92,18 @@
         box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
 
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.9);
-        z-index: 100;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .modal-content {
+    .password-window {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
         background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         padding: 30px;
         border-radius: 15px;
         width: 85%;
         max-width: 400px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        z-index: 100;
+        display: none;
     }
 
     .password-input {
@@ -221,6 +213,9 @@
             width: 90%;
             padding: 15px;
         }
+        .password-window {
+            padding: 20px;
+        }
     }
 
     @media (max-width: 360px) {
@@ -244,6 +239,14 @@
 <div class="message" id="message3"></div>
 <div class="message" id="specialMessage"></div>
 
+<!-- Password Window -->
+<div class="password-window" id="passwordWindow">
+    <h2 style="color: #c2185b; margin-bottom: 20px;">Enter Password</h2>
+    <p class="hint">Hint: My birthday in MMYYYYDD format</p>
+    <input type="text" class="password-input" id="passwordInput" placeholder="Enter password (e.g., 08200023)">
+    <button class="btn" id="submitPassword" style="width: 100%;">Proceed</button>
+</div>
+
 <!-- Birthday Image -->
 <img class="birthday-image" id="birthdayImage" src="vichi.png" alt="Birthday Girl">
 
@@ -251,16 +254,6 @@
 <div class="buttons" id="buttons">
     <button class="btn" id="playAgainBtn">Play Again</button>
     <button class="btn" id="specialMessageBtn">Special Message</button>
-</div>
-
-<!-- Password Modal -->
-<div class="modal" id="passwordModal">
-    <div class="modal-content">
-        <h2 style="color: #c2185b; margin-bottom: 20px;">Enter Password</h2>
-        <p class="hint">Hint: My birthday in MMYYYYDD format</p>
-        <input type="text" class="password-input" id="passwordInput" placeholder="Enter password (e.g., 08200023)">
-        <button class="btn" id="submitPassword" style="width: 100%;">Proceed</button>
-    </div>
 </div>
 
 <!-- Feedback Form -->
@@ -283,11 +276,11 @@
         message2: document.getElementById('message2'),
         message3: document.getElementById('message3'),
         specialMessage: document.getElementById('specialMessage'),
+        passwordWindow: document.getElementById('passwordWindow'),
         birthdayImage: document.getElementById('birthdayImage'),
         buttons: document.getElementById('buttons'),
         playAgainBtn: document.getElementById('playAgainBtn'),
         specialMessageBtn: document.getElementById('specialMessageBtn'),
-        passwordModal: document.getElementById('passwordModal'),
         passwordInput: document.getElementById('passwordInput'),
         submitPassword: document.getElementById('submitPassword'),
         feedbackForm: document.getElementById('feedbackForm'),
@@ -304,7 +297,7 @@
     function init() {
         document.addEventListener('click', handleFirstClick, { once: true });
         elements.playAgainBtn.addEventListener('click', restartCelebration);
-        elements.specialMessageBtn.addEventListener('click', () => elements.passwordModal.style.display = 'flex');
+        elements.specialMessageBtn.addEventListener('click', showPasswordWindow);
         elements.submitPassword.addEventListener('click', checkPassword);
         elements.submitFeedback.addEventListener('click', restartCelebration);
         
@@ -331,7 +324,7 @@
         elements.birthdayImage.style.opacity = '0';
         elements.birthdayImage.style.animation = '';
         elements.buttons.style.display = 'none';
-        elements.passwordModal.style.display = 'none';
+        elements.passwordWindow.style.display = 'none';
         elements.feedbackForm.style.display = 'none';
         elements.passwordInput.value = '';
         elements.userMessage.value = '';
@@ -348,9 +341,20 @@
         document.addEventListener('click', handleFirstClick, { once: true });
     }
 
+    function showPasswordWindow() {
+        // Hide other elements
+        document.querySelectorAll('.message').forEach(el => {
+            el.style.opacity = '0';
+        });
+        elements.buttons.style.display = 'none';
+        
+        // Show password window
+        elements.passwordWindow.style.display = 'block';
+    }
+
     function checkPassword() {
         if (elements.passwordInput.value === CORRECT_PASSWORD) {
-            elements.passwordModal.style.display = 'none';
+            elements.passwordWindow.style.display = 'none';
             showSpecialMessage();
         } else {
             alert("Incorrect password! Hint: MMYYYYDD format (e.g., August 20, 0023)");
@@ -358,15 +362,6 @@
     }
 
     function showSpecialMessage() {
-        // Hide all other elements
-        document.querySelectorAll('.message').forEach(el => {
-            if (el.id !== 'specialMessage') {
-                el.style.opacity = '0';
-            }
-        });
-        elements.birthdayImage.style.opacity = '0';
-        elements.buttons.style.display = 'none';
-        
         // Show special message (no typing effect)
         elements.specialMessage.textContent = "This is your special day! ❤️";
         elements.specialMessage.style.opacity = '1';
