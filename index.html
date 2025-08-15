@@ -30,9 +30,12 @@
         color: #c2185b;
         z-index: 10;
         text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-        width: 80%;
+        width: 90%;
         max-width: 600px;
         opacity: 0;
+        word-wrap: break-word;
+        white-space: normal;
+        line-height: 1.4;
     }
 
     #clickPrompt {
@@ -45,7 +48,7 @@
     }
 
     #message2 {
-        top: 20%;
+        top: 15%;
     }
 
     .birthday-image {
@@ -176,12 +179,26 @@
     @media (max-width: 480px) {
         .message {
             font-size: 1.4em;
+            width: 95%;
+            padding: 0 5px;
+        }
+        #message2 {
+            top: 10%;
         }
         .birthday-image {
             width: 180px;
         }
         .btn {
             padding: 10px 20px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .message {
+            font-size: 1.2em;
+        }
+        #message2 {
+            top: 5%;
         }
     }
 </style>
@@ -320,6 +337,7 @@
                 setTimeout(type, speed);
             } else {
                 element.style.borderRight = 'none';
+                element.style.whiteSpace = 'normal'; // Allow text to wrap after typing
                 if (callback) setTimeout(callback, 500);
             }
         }
