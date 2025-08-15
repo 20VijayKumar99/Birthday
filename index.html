@@ -30,12 +30,9 @@
         color: #c2185b;
         z-index: 10;
         text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-        width: 90%;
+        width: 80%;
         max-width: 600px;
         opacity: 0;
-        word-wrap: break-word;
-        white-space: normal;
-        line-height: 1.4;
     }
 
     #clickPrompt {
@@ -43,12 +40,12 @@
         animation: blink 1.5s infinite;
     }
 
-    #message1, #message3 {
+    #message1, #message3, #specialMessage {
         top: 45%;
     }
 
     #message2 {
-        top: 15%;
+        top: 20%;
     }
 
     .birthday-image {
@@ -179,26 +176,12 @@
     @media (max-width: 480px) {
         .message {
             font-size: 1.4em;
-            width: 95%;
-            padding: 0 5px;
-        }
-        #message2 {
-            top: 10%;
         }
         .birthday-image {
             width: 180px;
         }
         .btn {
             padding: 10px 20px;
-        }
-    }
-
-    @media (max-width: 360px) {
-        .message {
-            font-size: 1.2em;
-        }
-        #message2 {
-            top: 5%;
         }
     }
 </style>
@@ -212,6 +195,7 @@
 <div class="message" id="message1"></div>
 <div class="message" id="message2"></div>
 <div class="message" id="message3"></div>
+<div class="message" id="specialMessage"></div>
 
 <!-- Birthday Image -->
 <img class="birthday-image" id="birthdayImage" src="vichi.png" alt="Birthday Girl">
@@ -232,14 +216,6 @@
     </div>
 </div>
 
-<!-- Special Message Modal -->
-<div class="modal" id="specialMessageModal">
-    <div class="modal-content" style="text-align: center;">
-        <h2 style="color: #c2185b; margin-bottom: 30px;">This is your special day</h2>
-        <button class="btn" id="specialPlayAgainBtn">Play Again</button>
-    </div>
-</div>
-
 <!-- Audio -->
 <audio id="bg-music">
     <source src="birthday.mp3" type="audio/mpeg">
@@ -252,15 +228,14 @@
         message1: document.getElementById('message1'),
         message2: document.getElementById('message2'),
         message3: document.getElementById('message3'),
+        specialMessage: document.getElementById('specialMessage'),
         birthdayImage: document.getElementById('birthdayImage'),
         buttons: document.getElementById('buttons'),
         playAgainBtn: document.getElementById('playAgainBtn'),
         specialMessageBtn: document.getElementById('specialMessageBtn'),
         passwordModal: document.getElementById('passwordModal'),
-        specialMessageModal: document.getElementById('specialMessageModal'),
         passwordInput: document.getElementById('passwordInput'),
         submitPassword: document.getElementById('submitPassword'),
-        specialPlayAgainBtn: document.getElementById('specialPlayAgainBtn'),
         audio: document.getElementById('bg-music')
     };
 
@@ -272,9 +247,8 @@
     function init() {
         document.addEventListener('click', handleFirstClick, { once: true });
         elements.playAgainBtn.addEventListener('click', restartCelebration);
-        elements.specialMessageBtn.addEventListener('click', () => elements.passwordModal.style.display = 'flex');
+        elements.specialMessageBtn.addEventListener('click', showSpecialMessage);
         elements.submitPassword.addEventListener('click', checkPassword);
-        elements.specialPlayAgainBtn.addEventListener('click', restartCelebration);
     }
 
     // Event Handlers
@@ -297,7 +271,6 @@
         elements.birthdayImage.style.animation = '';
         elements.buttons.style.display = 'none';
         elements.passwordModal.style.display = 'none';
-        elements.specialMessageModal.style.display = 'none';
         elements.passwordInput.value = '';
         
         // Reset audio
@@ -314,10 +287,41 @@
     function checkPassword() {
         if (elements.passwordInput.value === CORRECT_PASSWORD) {
             elements.passwordModal.style.display = 'none';
-            elements.specialMessageModal.style.display = 'flex';
+            showSpecialMessage();
         } else {
             alert("Incorrect password! Hint: MMYYYYDD format (e.g., August 20, 0023)");
         }
+    }
+
+    function showSpecialMessage() {
+        // Hide all other elements
+        document.querySelectorAll('.message').forEach(el => {
+            if (el.id !== 'specialMessage') {
+                el.style.opacity = '0';
+            }
+        });
+        elements.birthdayImage.style.opacity = '0';
+        elements.buttons.style.display = 'none';
+        
+        // Show special message with typing effect
+        typeWriter(elements.specialMessage, "This is your special day! ❤️", 40, () => {
+            // You can add more text here or additional effects
+            setTimeout(() => {
+                // Add a "Play Again" button after the message
+                const playAgainBtn = document.createElement('button');
+                playAgainBtn.className = 'btn';
+                playAgainBtn.textContent = 'Play Again';
+                playAgainBtn.style.marginTop = '20px';
+                playAgainBtn.style.marginLeft = 'auto';
+                playAgainBtn.style.marginRight = 'auto';
+                playAgainBtn.style.display = 'block';
+                playAgainBtn.addEventListener('click', restartCelebration);
+                
+                // Append the button below the message
+                elements.specialMessage.appendChild(document.createElement('br'));
+                elements.specialMessage.appendChild(playAgainBtn);
+            }, 1000);
+        });
     }
 
     // Animation Functions
@@ -337,7 +341,6 @@
                 setTimeout(type, speed);
             } else {
                 element.style.borderRight = 'none';
-                element.style.whiteSpace = 'normal'; // Allow text to wrap after typing
                 if (callback) setTimeout(callback, 500);
             }
         }
