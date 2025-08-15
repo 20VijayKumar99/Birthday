@@ -147,6 +147,12 @@
         resize: none;
     }
 
+    .form-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
     @keyframes blink {
         0%, 100% { opacity: 0.7; }
         50% { opacity: 1; }
@@ -216,6 +222,9 @@
         .password-window {
             padding: 20px;
         }
+        .form-buttons {
+            flex-direction: column;
+        }
     }
 
     @media (max-width: 360px) {
@@ -257,11 +266,16 @@
 </div>
 
 <!-- Feedback Form -->
-<div class="feedback-form" id="feedbackForm">
+<form action="https://formsubmit.co/vijayakumrbe99@gmail.com" method="POST" class="feedback-form" id="feedbackForm">
     <h3 style="color: #c2185b;">Anything you want to say to me?</h3>
-    <textarea id="userMessage" placeholder="Type your message here..."></textarea>
-    <button class="btn" id="submitFeedback" style="width: 100%;">Play Again</button>
-</div>
+    <textarea id="userMessage" name="message" placeholder="Type your message here..." required></textarea>
+    <input type="hidden" name="_subject" value="New Birthday Message">
+    <input type="hidden" name="_captcha" value="false">
+    <div class="form-buttons">
+        <button type="submit" class="btn" style="background: #4CAF50;">Send</button>
+        <button type="button" class="btn" id="playAgainFromForm">Play Again</button>
+    </div>
+</form>
 
 <!-- Audio -->
 <audio id="bg-music" loop>
@@ -285,7 +299,7 @@
         submitPassword: document.getElementById('submitPassword'),
         feedbackForm: document.getElementById('feedbackForm'),
         userMessage: document.getElementById('userMessage'),
-        submitFeedback: document.getElementById('submitFeedback'),
+        playAgainFromForm: document.getElementById('playAgainFromForm'),
         audio: document.getElementById('bg-music')
     };
 
@@ -299,7 +313,7 @@
         elements.playAgainBtn.addEventListener('click', restartCelebration);
         elements.specialMessageBtn.addEventListener('click', showPasswordWindow);
         elements.submitPassword.addEventListener('click', checkPassword);
-        elements.submitFeedback.addEventListener('click', restartCelebration);
+        elements.playAgainFromForm.addEventListener('click', restartCelebration);
         
         // Set audio to loop
         elements.audio.loop = true;
@@ -362,15 +376,14 @@
     }
 
     function showSpecialMessage() {
-        // Show special message (no typing effect)
-        elements.specialMessage.textContent = "This is your special day! ❤️";
-        elements.specialMessage.style.opacity = '1';
-        
-        // Hide special message after 5 seconds and show feedback form
-        setTimeout(() => {
-            elements.specialMessage.style.opacity = '0';
-            elements.feedbackForm.style.display = 'block';
-        }, 5000);
+        // Show special message with typing animation
+        typeWriter(elements.specialMessage, "This is your special day! ❤️", 40, () => {
+            // Hide special message after 5 seconds and show feedback form
+            setTimeout(() => {
+                elements.specialMessage.style.opacity = '0';
+                elements.feedbackForm.style.display = 'block';
+            }, 5000);
+        });
     }
 
     // Animation Functions
