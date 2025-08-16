@@ -153,6 +153,69 @@
         justify-content: center;
     }
 
+    /* Balloon styles */
+    .balloon {
+        position: absolute;
+        bottom: -10%;
+        z-index: 1;
+        transform-origin: center bottom;
+        animation: floatUp 15s linear infinite;
+    }
+
+    .balloon:before {
+        content: "";
+        position: absolute;
+        width: 2px;
+        height: 40px;
+        background: rgba(0,0,0,0.2);
+        bottom: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .balloon .balloon-body {
+        width: 50px;
+        height: 60px;
+        border-radius: 50%;
+        position: relative;
+    }
+
+    .balloon .balloon-body:after {
+        content: "";
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        bottom: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: inherit;
+        filter: brightness(0.8);
+    }
+
+    @keyframes floatUp {
+        0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+        }
+        70% {
+            opacity: 0.9;
+        }
+        100% {
+            transform: translateY(-110vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    @keyframes floatSide {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        50% {
+            transform: translateX(20px);
+        }
+    }
+
     @keyframes blink {
         0%, 100% { opacity: 0.7; }
         50% { opacity: 1; }
@@ -225,6 +288,10 @@
         .form-buttons {
             flex-direction: column;
         }
+        .balloon {
+            width: 30px;
+            height: 36px;
+        }
     }
 
     @media (max-width: 360px) {
@@ -238,6 +305,9 @@
 </style>
 </head>
 <body>
+
+<!-- Balloon Container -->
+<div id="balloonContainer"></div>
 
 <!-- Initial Click Prompt -->
 <div id="clickPrompt" class="message">Click anywhere to begin</div>
@@ -300,12 +370,22 @@
         feedbackForm: document.getElementById('feedbackForm'),
         userMessage: document.getElementById('userMessage'),
         playAgainFromForm: document.getElementById('playAgainFromForm'),
-        audio: document.getElementById('bg-music')
+        audio: document.getElementById('bg-music'),
+        balloonContainer: document.getElementById('balloonContainer')
     };
 
     // Constants
     const CORRECT_PASSWORD = "08200023";
     let celebrationStartTime = 0;
+    let balloonInterval;
+
+    // Balloon colors
+    const balloonColors = [
+        '#FF5252', '#FF4081', '#E040FB', '#7C4DFF', 
+        '#536DFE', '#448AFF', '#40C4FF', '#18FFFF', 
+        '#64FFDA', '#69F0AE', '#B2FF59', '#EEFF41', 
+        '#FFFF00', '#FFD740', '#FFAB40', '#FF6E40'
+    ];
 
     // Initialize
     function init() {
@@ -319,12 +399,70 @@
         elements.audio.loop = true;
     }
 
+    // Create a balloon
+    function createBalloon() {
+        const balloon = document.createElement('div');
+        balloon.className = 'balloon';
+        
+        // Random position
+        const leftPos = Math.random() * 100;
+        balloon.style.left = `${leftPos}%`;
+        
+        // Random size
+        const size = 40 + Math.random() * 30;
+        balloon.style.width = `${size}px`;
+        balloon.style.height = `${size * 1.2}px`;
+        
+        // Random color
+        const color = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+        const balloonBody = document.createElement('div');
+        balloonBody.className = 'balloon-body';
+        balloonBody.style.background = color;
+        balloon.appendChild(balloonBody);
+        
+        // Random float speed
+        const duration = 10 + Math.random() * 10;
+        balloon.style.animationDuration = `${duration}s`;
+        
+        // Random delay
+        balloon.style.animationDelay = `${Math.random() * 5}s`;
+        
+        // Random side-to-side movement
+        balloonBody.style.animation = `floatSide ${3 + Math.random() * 4}s ease-in-out infinite`;
+        balloonBody.style.animationDelay = `${Math.random() * 2}s`;
+        
+        elements.balloonContainer.appendChild(balloon);
+        
+        // Remove balloon after animation completes
+        setTimeout(() => {
+            balloon.remove();
+        }, duration * 1000);
+    }
+
+    // Start balloon animation
+    function startBalloons() {
+        // Create initial balloons
+        for (let i = 0; i < 20; i++) {
+            setTimeout(createBalloon, i * 300);
+        }
+        
+        // Keep creating balloons at intervals
+        balloonInterval = setInterval(createBalloon, 800);
+    }
+
+    // Stop balloon animation
+    function stopBalloons() {
+        clearInterval(balloonInterval);
+        elements.balloonContainer.innerHTML = '';
+    }
+
     // Event Handlers
     function handleFirstClick() {
         elements.clickPrompt.style.animation = 'fadeOut 0.5s forwards';
         celebrationStartTime = Date.now();
         elements.audio.volume = 0.7;
         elements.audio.play();
+        startBalloons();
         startCelebrationSequence();
     }
 
@@ -346,6 +484,10 @@
         // Reset and restart audio
         elements.audio.currentTime = 0;
         elements.audio.play();
+        
+        // Stop and restart balloons
+        stopBalloons();
+        startBalloons();
         
         // Show click prompt again
         elements.clickPrompt.style.display = 'block';
@@ -454,6 +596,3 @@
 </script>
 </body>
 </html>
-
-
-
